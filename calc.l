@@ -1,12 +1,13 @@
 %{
     #include <stdlib.h>
+    #include<math.h>
     void yyerror(char *);
     #include "y.tab.h"
 %}
 %%
 "exit"   	   {return exit_cmd;}
 [0-9]+     	   {yylval = atoi(yytext); return INTEGER;}
-[-+*/%\n]          return *yytext;
+[-+*/%^|\n]        return *yytext;
 "("	           return *yytext;
 ")"	           return *yytext;
 [\t]               ;  	   

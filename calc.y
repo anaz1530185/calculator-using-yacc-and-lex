@@ -1,38 +1,56 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
+    #include <math.h>
     int yylex(void);
     void yyerror(char *);
 %}
+
+
 %token INTEGER
 %token exit_cmd
+
+
 %%
 program : program line				{ printf("result=%d\n", $2); } 
 	| line	 		                { printf("result=%d\n", $1); }
 	| exit_cmd				{ exit(EXIT_SUCCESS); }
 	;
 
-line    : expr '\n'				{ $$ = $1; }
-        | exit_cmd                              { exit(EXIT_SUCCESS); }
+line    : E '\n'				         { $$ = $1; }
+        | exit_cmd                          	     	 { exit(EXIT_SUCCESS); }
         ;
 	
-expr    : term                                  { $$ = $1; }
-        | expr '+' factor                       { $$ = $1 + $3; }
-        | expr '-' factor                       { $$ = $1 - $3; }
-        | factor				{ $$ = $1; }
-        ;
+E	: T	                      		     	 { $$ = $1; }
+    	| E '+' T	                             	 { $$ = $1 + $3; }
+    	| E '-' T             		             	 { $$ = $1 - $3; }
+    	;
 
-factor  : term		       	                { $$ = $1; }
-        | factor '*' term                       { $$ = $1 * $3; }
-        | factor '/' term                       { $$ = $1 / $3; }
-        | factor '%' term	                { $$ = $1 % $3; }
+T	: G		       	             	      	 { $$ = $1; }
+	| T '*' G	                       	      	 { $$ = $1 * $3; }
+ 	| T '/' G        	                      	 { $$ = $1 / $3; }
+ 	| T '%' G		                      	 { $$ = $1 % $3; }
+    	;
+
+G	: term
+   	| G '^' term			                { $$ = pow($1, $3); }
+    	| '|' term  '|'					{ $$ = abs($2); }
+	| '|' term1 '|'				        { $$ = abs($2); }
         ;
 
 term    : INTEGER			                { $$ = $1; }
-        | '('expr')'		                { $$ = $2; }
-        | '('factor')'                          { $$ = $2; }
+        | '('E')'			                { $$ = $2; }
+        | '('T')'               	                { $$ = $2; }
+        | '('G')'               	                { $$ = $2; }
         ;
+
+term1	: INTEGER					{ $$ = $1; }
+	| E						{ $$ = $1; }
+	| T						{ $$ = $1; }
+	| G						{ $$ = $1; }
 %%
+
+
 void yyerror(char *s) {
     fprintf(stderr, "%s\n", s);
 }
