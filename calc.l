@@ -3,6 +3,7 @@
     #include<math.h>
     void yyerror(char *);
     #include "y.tab.h"
+    int yylval;
 %}
 %%
 "exit"   	   {return exit_cmd;}
